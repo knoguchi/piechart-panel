@@ -54,11 +54,19 @@ export default function link(scope, elem, attrs, ctrl) {
     var $panelContainer = elem.parents('.panel-container');
     var backgroundColor = $panelContainer.css('background-color');
 
+    var dataset = ctrl.data;
     var options = {
       legend: {
         show: false
       },
-      series: {
+      grid: {
+        hoverable: true,
+        clickable: false
+      }
+    };
+
+    if (panel.pieType === 'pie' || panel.pieType == 'donut') {
+      options.series = {
         pie: {
           show: true,
           stroke: {
@@ -73,20 +81,54 @@ export default function link(scope, elem, attrs, ctrl) {
             opacity: 0.0
           }
         }
-      },
-      grid: {
-        hoverable: true,
-        clickable: false
+      };
+      if (panel.pieType === 'donut') {
+        options.series.pie.innerRadius = 0.5;
       }
-    };
+    } else if (panel.pieType === 'bar') {
+      // transform data structure
+      var data = [];
+      var ticks = [];
+      var maxLen = ctrl.data.length;
+      for(var i=0; i< maxLen; i++) {
+        ticks.push([maxLen-i, ctrl.data[i].label]);
+        data.push([ctrl.data[i].data, maxLen-i]);
+      }
 
-    if (panel.pieType === 'donut') {
-      options.series.pie.innerRadius = 0.5;
+      options.series = {
+        bars: {
+          show: true,
+          horizontal: true
+        }
+      };
+
+      options.bars = {
+        align: "center",
+        barWidth: 0.5
+      };
+
+      dataset = [
+        {data: data, color: "#5482ff"}
+      ];
+
+      options.xaxis = {
+        tickDecimals: 0
+      };
+
+      options.yaxis = {
+        ticks: ticks
+      };
+
+      options.grid = {
+        hoverable: false,
+        clickable: false,
+        borderWidth: 0,
+        labelMargin: 5
+      };
     }
 
     elem.html(plotCanvas);
-
-    $.plot(plotCanvas, ctrl.data, options);
+    $.plot(plotCanvas, dataset, options);
     plotCanvas.bind("plothover", function (event, pos, item) {
       if (!item) {
         $tooltip.detach();
