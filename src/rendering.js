@@ -92,7 +92,7 @@ export default function link(scope, elem, attrs, ctrl) {
       var maxLen = ctrl.data.length;
       for(var i=0; i< maxLen; i++) {
         ticks.push([maxLen-i, ctrl.data[i].label]);
-        data.push([ctrl.data[i].data, maxLen-i]);
+        data.push([ctrl.data[i].data * 100, maxLen-i]);
       }
 
       options.series = {
@@ -112,7 +112,8 @@ export default function link(scope, elem, attrs, ctrl) {
       ];
 
       options.xaxis = {
-        tickDecimals: 0
+        tickDecimals: 0,
+        max: 100.0
       };
 
       options.yaxis = {
@@ -140,7 +141,7 @@ export default function link(scope, elem, attrs, ctrl) {
       var formatted = ctrl.formatValue(item.series.data[0][1]);
 
       body = '<div class="graph-tooltip-small"><div class="graph-tooltip-time">';
-      body += '<div class="graph-tooltip-value">' + item.series.label + ': ' + formatted;
+      body += '<div class="graph-tooltip-value" style="text-overflow: ellipsis">' + item.series.label + ': ' + formatted;
       body += " (" + percent + "%)" + '</div>';
       body += "</div></div>";
 
