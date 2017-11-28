@@ -111,9 +111,11 @@ export default function link(scope, elem, attrs, ctrl) {
         {data: data, color: "#5482ff"}
       ];
 
+      var max_value = _.max(_.map(data, function(e) { return e[0];}));
+      panel.decimals = Math.floor(Math.abs(Math.log10(max_value)));
+
       options.xaxis = {
-        tickDecimals: 1,
-        max: 1,
+        max: _.min([max_value * 1.2, 1.0]),
         tickFormatter: function (v, axis) {
           return ctrl.formatValue(v);
         }
@@ -136,12 +138,11 @@ export default function link(scope, elem, attrs, ctrl) {
       }
 
       var body;
-      var percent = parseFloat(item.series.percent).toFixed(2);
       var formatted = ctrl.formatValue(item.series.data[item.dataIndex][0]);
 
       body = '<div class="graph-tooltip-small"><div class="graph-tooltip-time">';
       body += '<div class="graph-tooltip-value" style="text-overflow: ellipsis">' + item.series.yaxis.ticks[item.dataIndex].label;
-      body += " (" + percent + "%)" + '</div>';
+      body += " " + formatted + '</div>';
       body += "</div></div>";
 
       $tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);

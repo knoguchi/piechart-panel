@@ -112,20 +112,24 @@ System.register(['lodash', 'jquery', 'jquery.flot', 'jquery.flot.pie'], function
 
         dataset = [{ data: data, color: "#5482ff" }];
 
+        var max_value = _.max(_.map(data, function (e) {
+          return e[0];
+        }));
+        panel.decimals = Math.floor(Math.abs(Math.log10(max_value)));
+
         options.xaxis = {
-          tickDecimals: 0
+          max: _.min([max_value * 1.2, 1.0]),
+          tickFormatter: function tickFormatter(v, axis) {
+            return ctrl.formatValue(v);
+          }
         };
 
         options.yaxis = {
           ticks: ticks
         };
 
-        options.grid = {
-          hoverable: false,
-          clickable: false,
-          borderWidth: 0,
-          labelMargin: 5
-        };
+        options.grid.borderWidth = 0;
+        options.grid.labelMargin = 5;
       }
 
       elem.html(plotCanvas);
@@ -137,12 +141,11 @@ System.register(['lodash', 'jquery', 'jquery.flot', 'jquery.flot.pie'], function
         }
 
         var body;
-        var percent = parseFloat(item.series.percent).toFixed(2);
-        var formatted = ctrl.formatValue(item.series.data[0][1]);
+        var formatted = ctrl.formatValue(item.series.data[item.dataIndex][0]);
 
         body = '<div class="graph-tooltip-small"><div class="graph-tooltip-time">';
-        body += '<div class="graph-tooltip-value">' + item.series.label + ': ' + formatted;
-        body += " (" + percent + "%)" + '</div>';
+        body += '<div class="graph-tooltip-value" style="text-overflow: ellipsis">' + item.series.yaxis.ticks[item.dataIndex].label;
+        body += " " + formatted + '</div>';
         body += "</div></div>";
 
         $tooltip.html(body).place_tt(pos.pageX + 20, pos.pageY);
